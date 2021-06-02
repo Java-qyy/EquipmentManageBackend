@@ -201,9 +201,36 @@
         },
         //钩子函数，VUE对象初始化完成后自动执行
         created() {
+			this.notoken();
             this.findPage();
         },
         methods: {
+			
+				notoken(){
+					axios.post("http://127.0.0.1:8080/login/token?username="+this.getCookie("username")+"&token="+this.getCookie("token"))
+						.then((res) => {
+							if (res.data.flag) { //如果修改成功
+								
+							} else {
+								alert(res.data.msg)
+								window.location.href='login.html';
+							}
+						})
+				}
+				,
+				getCookie(c_name){
+				 if (document.cookie.length>0){
+				  let c_start=document.cookie.indexOf(c_name + "=")
+				  if (c_start!=-1){ 
+				   c_start=c_start + c_name.length+1 
+				   let c_end=document.cookie.indexOf(";",c_start)
+				   if (c_end==-1) c_end=document.cookie.length
+				    return unescape(document.cookie.substring(c_start,c_end))
+				   } 
+				  }
+				 return ""
+				}
+				,
             //编辑
             handleEdit() {
                 this.$refs['dataEditForm'].validate((valid) =>{

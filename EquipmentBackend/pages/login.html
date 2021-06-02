@@ -12,6 +12,7 @@
     <script src="../plugins/elementui/index.js"></script>
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script src="../js/axios-0.18.0.js"></script>
+
 </head>
 <body>
 <div id="app">
@@ -53,6 +54,7 @@
 </div>
 </body>
 <script>
+	
     let v = new Vue({
         el: "#app",
         data: {
@@ -81,19 +83,28 @@
                 // 为表单绑定验证功能
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+						
                         // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
                         // this.$router.push("/main");
                         // console.log(this.form.code);
+					
                         axios.get("http://127.0.0.1:8080/login/login?username="+this.form.username+"&code="+this.form.code)
                             .then((res) =>{
                                 if (res.data.flag){
                                     this.$message({
                                         type:"success",
-                                        message:res.data.msg
+                                        message:res.data.msg,
+										
                                     })
+									
+									var date=new Date()
+									date.setSeconds(date.getSeconds()+100000)
+									document.cookie="token"+ "="+escape(res.data.token)+"; expires="+date.toGMTString()
+									
                                     this.dialogVisible = false;
                                     // this.$router.push("/main");
-                                    window.location.href = "main.html";
+									
+                                   window.location.href = "main.html";
                                 }else {
                                     this.$message.error(res.data.msg);
                                 }
@@ -111,13 +122,18 @@
                         // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
                         // this.$router.push("/main");
                         // console.log(this.form)
+					
                         axios.get("http://127.0.0.1:8080/login/code?username="+this.form.username+"&password="+this.form.password)
                         .then((res) =>{
                             if (res.data.flag){
                                 this.$message({
                                     type:"success",
-                                    message:res.data.msg
+                                    message:res.data.msg,
+									
                                 })
+								var date=new Date()
+								date.setSeconds(date.getSeconds()+100000)
+								document.cookie="username"+ "="+escape(this.form.username)+"; expires="+date.toGMTString()
                                 this.dialogVisible = true;
                             }else {
                                 this.$message.error(res.data.msg);
