@@ -25,27 +25,29 @@
                 <el-form-item label="密码" prop="password">
                     <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
                 </el-form-item>
-                <el-form-item label="验证码" prop="code">
-                    <el-input type="text" placeholder="请输入验证码" v-model="form.code"/>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSubmit('loginForm')">发送验证码</el-button>
-                    <el-button type="primary" @click="onSubmit('loginForm')">登录</el-button>
 
+                <el-form-item>
+                    <el-button type="primary" @click="onSendCode('loginForm')">发送验证码</el-button>
                 </el-form-item>
             </el-form>
 
-            <el-dialog
-                    title="温馨提示"
-                    :visible.sync="dialogVisible"
-                    width="30%"
-                    :before-close="handleClose">
-                <span>请输入账号和密码</span>
-                <span slot="footer" class="dialog-footer">
-
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-      </span>
-            </el-dialog>
+            <div class="add-form">
+                <el-dialog title="验证码已发送到您的邮箱" :visible.sync="dialogVisible" width="500px">
+                    <el-form ref="form" :model="form" :rules="rules" label-position="right"
+                             label-width="100px">
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="验证码" prop="code">
+                                    <el-input v-model="form.code"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="onLogin('form')">登录</el-button>
+                    </div>
+                </el-dialog>
+            </div>
         </div>
     </template>
 </div>
@@ -75,15 +77,52 @@
             },
         },
         methods: {
-            onSubmit(formName) {
+            onLogin(formName) {
                 // 为表单绑定验证功能
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
                         // this.$router.push("/main");
+                        // console.log(this.form.code);
+                        axios.get("http://127.0.0.1:8080/login/login?username="+this.form.username+"&code="+this.form.code)
+                            .then((res) =>{
+                                if (res.data.flag){
+                                    this.$message({
+                                        type:"success",
+                                        message:res.data.msg
+                                    })
+                                    this.dialogVisible = false;
+                                    // this.$router.push("/main");
+                                    window.location.href = "main.html";
+                                }else {
+                                    this.$message.error(res.data.msg);
+                                }
+                            })
                     } else {
                         this.dialogVisible = true;
                         return false;
+                    }
+                });
+            },
+            onSendCode(formName) {
+                // 为表单绑定验证功能
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // 使用 vue-router 路由到指定页面，该方式称之为编程式导航
+                        // this.$router.push("/main");
+                        // console.log(this.form)
+                        axios.get("http://127.0.0.1:8080/login/code?username="+this.form.username+"&password="+this.form.password)
+                        .then((res) =>{
+                            if (res.data.flag){
+                                this.$message({
+                                    type:"success",
+                                    message:res.data.msg
+                                })
+                                this.dialogVisible = true;
+                            }else {
+                                this.$message.error(res.data.msg);
+                            }
+                        })
                     }
                 });
             },
